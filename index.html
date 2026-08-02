@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>CampCart &mdash; Einkauf aus der Nachbarschaft an den Stellplatz</title>
+<meta name="description" content="CampCart bringt den Einkauf vom Hofladen an den Stellplatz: abends bestellt, morgens an der Rezeption. Ein Produkt von Vojeto Studio.">
+
+<!-- OFFENE PUNKTE VOR DEM LIVEGANG
+     1. Domain: canonical und og:url stehen auf einem Platzhalter.
+     2. Kontaktadresse: derzeit die Vojeto-Adresse.
+     3. „Saison 2027" ist eine Annahme — bestaetigen oder Zeile streichen.
+     4. Schriften self-hosten, siehe Kommentar unten.
+     5. og:image (1200x630) anlegen, dann die Zeile einkommentieren.
+     6. Nachtbild: die Vojeto-Marke steht dort in deren eigenem
+        Dunkelwert #EFE9DD statt in Tinte — mit Vojeto abstimmen. -->
+
+<link rel="canonical" href="https://campcart.example/">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="CampCart">
+<meta property="og:description" content="Elf Kilometer zum Supermarkt. Eine Minute zum Bestellen.">
+<meta property="og:url" content="https://campcart.example/">
+<meta property="og:locale" content="de_DE">
+<!-- <meta property="og:image" content="https://campcart.example/campcart-share.png"> -->
+
+<meta name="theme-color" content="#143C46" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A2124" media="(prefers-color-scheme: dark)">
+
+<!-- Favicon: Kompaktmarke auf cremefarbener Kachel, wie im Handbuch,
+     als Data-URI eingebettet, damit die Seite eine einzelne Datei bleibt.
+     Bei eigenem Hosting stattdessen campcart-mark-compact.svg ausliefern. -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Crect width='120' height='120' rx='26' fill='%23FCF8EF'/%3E%3Cpath d='M60 22 L109 92 L11 92 Z' fill='%23143C46' stroke='%23143C46' stroke-width='10' stroke-linejoin='round'/%3E%3Crect x='2' y='92' width='116' height='12' rx='6' fill='%23143C46'/%3E%3Cpath d='M39 62 L81 62 L74 89 L46 89 Z' fill='%23E8930F' stroke='%23E8930F' stroke-width='7' stroke-linejoin='round'/%3E%3Cpath d='M47 63 Q60 35 73 63' fill='none' stroke='%23E8930F' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E" type="image/svg+xml">
+
+<!--
+  Schriften: die beiden Tags unten laden Manrope und JetBrains Mono von Google
+  und geben dabei die IP jedes Besuchers an einen Dritten weiter. Vor dem
+  Livegang die Dateien holen (beide SIL Open Font License), unter /fonts/
+  ausliefern, diese Tags loeschen und den @font-face-Block einkommentieren.
+-->
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;800&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+/* ═══════════════════════════════════════════════════════════
+   CampCart — Platzhalterseite
+   Farb- und Schriftwerte nach Markenhandbuch, 2. August 2026.
+
+   Drei Baender, drei Materialien:
+   Daemmerblau traegt die Marke, Segeltuch die Liste,
+   Papier den Absender. Vojeto steht nur auf dem Papier.
+
+   Bernstein kommt zweimal vor, wie es die Mengenregel erlaubt:
+   bei der Zeile, die wartet, und bei der Aktion, die sie erledigt.
+   ═══════════════════════════════════════════════════════════ */
+
+/* Selbst gehostete Schriften kommen hierher — danach die <link>-Tags oben raus:
+
+@font-face{
+  font-family:'Manrope';
+  src:url('/fonts/manrope-variable.woff2') format('woff2-variations');
+  font-weight:200 800; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('/fonts/jetbrains-mono-400.woff2') format('woff2');
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:'JetBrains Mono';
+  src:url('/fonts/jetbrains-mono-500.woff2') format('woff2');
+  font-weight:500; font-style:normal; font-display:swap;
+}
+
+*/
+
+/* ── Tokens, hell ────────────────────────────────────────── */
+
+:root{
+  color-scheme: light dark;
+
+  --bg:        #EAE1CD;  /* Segeltuch 100 — Dashboard-Grund  */
+  --surface:   #FCF8EF;  /* Segeltuch 000 — die Liste        */
+  --border:    #D8CCB0;  /* Segeltuch 200                    */
+  --text:      #1A1B18;  /* Segeltuch 800                    */
+  --muted:     #6A6150;  /* Segeltuch 500                    */
+  --faint:     #8C8168;  /* Segeltuch 400 — nie Lesetext     */
+
+  --brand:     #143C46;  /* Daemmerblau 600 — Ueberschriften */
+  --bar:       #143C46;  /* das eine blaue Band              */
+  --bar-edge:  #143C46;
+  --on-bar:    #FCF8EF;
+
+  --tent:      #FCF8EF;
+  --basket:    #E8930F;
+
+  --head-bg:   #494336;  /* Segeltuch 700 — Tabellenkopf     */
+  --head-tx:   #EAE1CD;
+
+  --amber:     #E8930F;  /* Bernstein 500 — gefuellte Flaeche*/
+  --amber-hov: #C57807;  /* Bernstein 600                    */
+  --on-amber:  #1A1B18;  /* Segeltuch 800 auf Bernstein      */
+  --amber-tx:  #945A05;  /* Bernstein 700 — Bernstein im Text*/
+
+  --foot-bg:   #F2EBDB;  /* Segeltuch 050 — eigene Flaeche   */
+  --vojeto:    #22201D;  /* Vojeto Tinte                     */
+
+  --p-offen-tx:#6A6150; --p-offen-bg:#EAE1CD;
+  --p-ange-tx: #143C46; --p-ange-bg: #E7EEF0;
+  --p-unter-tx:#0F2C34; --p-unter-bg:#CBDDE2;
+  --p-spaet-tx:#945A05; --p-spaet-bg:#FBE7C6;
+
+  --font-sans: 'Manrope', system-ui, -apple-system, Segoe UI, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease: cubic-bezier(.33, 0, .2, 1);
+}
+
+/* ── Tokens, Nacht ───────────────────────────────────────────
+   Abschnitt 11: Bestellt wird abends, im Zelt, bei 14 % Akku.
+   Daemmerblau 600 taugt hier nicht mehr als Flaeche — es liegt
+   zu nah am Grund. Grosse Flaechen uebernimmt #1A2124.
+   ─────────────────────────────────────────────────────────── */
+
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:        #12181A;
+    --surface:   #1A2124;
+    --border:    #2F393C;
+    --text:      #F0E8D8;
+    --muted:     #9C958A;
+    --faint:     #7E786E;
+
+    --brand:     #7FB8C4;  /* Daemmerblau aufgehellt          */
+    --bar:       #1A2124;
+    --bar-edge:  #2F393C;
+    --on-bar:    #F0E8D8;
+
+    --tent:      #F0E8D8;
+    --basket:    #F2A83A;
+
+    --head-bg:   #232B2E;
+    --head-tx:   #9C958A;
+
+    --amber:     #F2A83A;  /* Bernstein 300                   */
+    --amber-hov: #E8930F;
+    --on-amber:  #12181A;
+    --amber-tx:  #F2A83A;
+
+    --foot-bg:   #161D1F;
+    --vojeto:    #EFE9DD;  /* Vojetos eigener Dunkelwert      */
+
+    --p-offen-tx:#9C958A; --p-offen-bg:#262E31;
+    --p-ange-tx: #7FB8C4; --p-ange-bg: #16323A;
+    --p-unter-tx:#A6CFD9; --p-unter-bg:#1B3F49;
+    --p-spaet-tx:#F2A83A; --p-spaet-bg:#3A2A12;
+  }
+}
+
+/* ── Grundlage ───────────────────────────────────────────── */
+
+*, *::before, *::after{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  min-block-size: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection{ background: var(--p-spaet-bg); color: var(--text); }
+
+a{ color: var(--amber-tx); text-underline-offset: .18em; }
+a:focus-visible, summary:focus-visible{
+  outline: 2px solid var(--amber-tx);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.col{
+  inline-size: 100%;
+  max-inline-size: 42rem;
+  margin-inline: auto;
+  padding-inline: clamp(1rem, 4vw, 1.75rem);
+}
+
+/* ── Kopfleiste — Masse aus dem Handbuch: 40 / 28 / 12 px ── */
+
+.topbar{
+  background: var(--bar);
+  border-block-end: 1px solid var(--bar-edge);
+}
+
+.lockup{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-block: 1.05rem;
+}
+
+/* viewBox auf 0 0 120 104 beschnitten: die Zeichenflaeche endet an der
+   Bodenlinie, damit sie auf der Grundlinie des Wortes sitzt und das
+   Zelt nicht auf 16 leeren Einheiten schwebt. */
+.lockup svg{ block-size: 40px; inline-size: auto; display: block; }
+.tent  { fill: var(--tent);   stroke: var(--tent); }
+.basket{ fill: var(--basket); stroke: var(--basket); }
+
+.lockup h1{
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -.038em;
+  line-height: 1;
+  color: var(--on-bar);
+}
+.lockup em{ font-style: normal; color: var(--basket); }
+
+/* ── Inhalt ──────────────────────────────────────────────── */
+
+main{ padding-block: clamp(2.5rem, 7vw, 3.5rem) clamp(2rem, 6vw, 2.75rem); }
+
+/* Die Entfernung tritt zurueck, die Naehe kommt nach vorn. */
+.say{
+  margin: 0;
+  font-size: clamp(1.75rem, 7.4vw, 2.6rem);
+  font-weight: 800;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+  color: var(--muted);
+  text-wrap: balance;
+}
+.say .line{ display: block; }
+.say .near{ color: var(--brand); }
+
+.intro{
+  margin: 1.1rem 0 0;
+  max-inline-size: 46ch;
+  color: var(--muted);
+  font-size: clamp(.95rem, 3.5vw, 1.02rem);
+  text-wrap: pretty;
+}
+
+/* ── Die Liste ───────────────────────────────────────────── */
+
+.list{
+  margin-block-start: 1.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.list-head{
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .55rem .9rem;
+  background: var(--head-bg);
+  color: var(--head-tx);
+  font-family: var(--font-mono);
+  font-size: .6rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.rows{ margin: 0; padding: 0; list-style: none; }
+
+/* Haarlinien statt Zebra: zwei Trenner fuer dieselbe Arbeit sind einer zu viel. */
+.rows li{
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem .9rem;
+  border-block-start: 1px solid var(--border);
+}
+.rows li:first-child{ border-block-start: none; }
+
+.part{ min-inline-size: 0; }
+
+.part-id{
+  display: block;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  color: var(--muted);
+}
+
+.part-name{
+  display: block;
+  font-size: .95rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--text);
+}
+
+.state{
+  margin-inline-start: auto;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .3rem;
+}
+
+/* Zustaende sind eingesperrt: getoente Flaeche, Mono, Versalien. */
+.pill{
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: .6rem;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  padding: .28rem .5rem;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+.pill-offen{ color: var(--p-offen-tx); background: var(--p-offen-bg); }
+.pill-ange { color: var(--p-ange-tx);  background: var(--p-ange-bg); }
+.pill-unter{ color: var(--p-unter-tx); background: var(--p-unter-bg); }
+.pill-spaet{ color: var(--p-spaet-tx); background: var(--p-spaet-bg); }
+
+/* ── Die eine Handlung ───────────────────────────────────── */
+
+.call{ margin-block-start: 1.75rem; }
+
+.call p{
+  margin: 0 0 .8rem;
+  max-inline-size: 46ch;
+  color: var(--muted);
+  font-size: .95rem;
+}
+
+.call-row{ display: flex; align-items: center; flex-wrap: wrap; gap: .75rem 1rem; }
+
+/* Aktionen sind frei: gefuellte Flaeche, dunkle Schrift, Radius 8. */
+.btn{
+  display: inline-block;
+  padding: .62rem 1.05rem;
+  background: var(--amber);
+  color: var(--on-amber);
+  font-weight: 700;
+  font-size: .95rem;
+  line-height: 1.2;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.btn:hover{ background: var(--amber-hov); color: var(--on-amber); }
+.btn:focus-visible{ outline: 2px solid var(--amber-tx); outline-offset: 3px; }
+
+.call-mail{
+  font-family: var(--font-mono);
+  font-size: .76rem;
+  color: var(--muted);
+}
+
+/* ── Absenderband — eigene, helle Flaeche fuer Vojeto ────── */
+
+.site-footer{
+  background: var(--foot-bg);
+  border-block-start: 1px solid var(--border);
+  padding-block: 1.4rem 1.75rem;
+}
+
+.foot-line{
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem 1rem;
+}
+
+.sender{ display: flex; align-items: center; gap: 10px; }
+
+/* Icon-Stufe: unter 36 px zeigt Vojeto nur die drei Steine. */
+.sender svg{
+  block-size: 19px;
+  inline-size: auto;
+  display: block;
+  color: var(--vojeto);
+  flex: none;
+}
+
+.sender p{
+  margin: 0;
+  font-size: .84rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.legal{ margin-inline-start: auto; }
+
+.legal > summary{
+  cursor: pointer;
+  list-style: none;
+  padding: .25rem 0;
+  font-family: var(--font-mono);
+  font-size: .68rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.legal > summary::-webkit-details-marker{ display: none; }
+.legal > summary:hover{ color: var(--amber-tx); }
+
+.imprint{
+  margin-block-start: 1rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: .85rem;
+  line-height: 1.65;
+  color: var(--muted);
+}
+.imprint h2{
+  margin: 0 0 .5rem;
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--brand);
+}
+.imprint p{ margin: 0 0 .65rem; }
+.imprint p:last-child{ margin-block-end: 0; }
+.imprint strong{ font-weight: 500; color: var(--text); }
+
+/* ── Bewegung: der Satz spricht, dann laeuft die Liste ein ─ */
+
+.line, .intro, .rows li, .call{ animation: rise 520ms var(--ease) both; }
+
+.line:nth-child(1){ animation-delay:  80ms; }
+.line:nth-child(2){ animation-delay: 220ms; }
+.intro            { animation-delay: 400ms; }
+.rows li:nth-child(1){ animation-delay: 560ms; }
+.rows li:nth-child(2){ animation-delay: 640ms; }
+.rows li:nth-child(3){ animation-delay: 720ms; }
+.rows li:nth-child(4){ animation-delay: 800ms; }
+.rows li:nth-child(5){ animation-delay: 880ms; }
+.call             { animation-delay: 1020ms; }
+
+@keyframes rise{
+  from{ opacity: 0; transform: translateY(6px); }
+  to  { opacity: 1; transform: none; }
+}
+
+/* Wer Bewegung abgeschaltet hat, bekommt dasselbe Bild, ungebaut. */
+@media (prefers-reduced-motion: reduce){
+  .line, .intro, .rows li, .call{ animation: none; }
+}
+
+/* ── Enge Displays ───────────────────────────────────────── */
+
+@media (max-width: 26rem){
+  .rows li{ flex-direction: column; align-items: flex-start; gap: .5rem; }
+  .state{ margin-inline-start: 0; justify-content: flex-start; }
+}
+</style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="col lockup">
+    <!-- Primaerstufe: Zelt mit ausgespartem Korb, Bodenlinie durchgehend. -->
+    <svg viewBox="0 0 120 104" aria-hidden="true" focusable="false">
+      <defs>
+        <mask id="cc-cut">
+          <rect width="120" height="120" fill="#fff"/>
+          <g fill="#000" stroke="#000" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M41 64 L79 64 L73 88 L47 88 Z"/>
+            <path d="M48 65 Q60 39 72 65" fill="none"/>
+          </g>
+        </mask>
+      </defs>
+      <path class="tent" d="M60 20 L108 94 L12 94 Z" stroke-width="7" stroke-linejoin="round" mask="url(#cc-cut)"/>
+      <rect class="tent" x="3" y="93.5" width="114" height="10.5" rx="5.25" stroke="none"/>
+      <path class="basket" d="M41 64 L79 64 L73 88 L47 88 Z" stroke-width="5" stroke-linejoin="round"/>
+      <path class="basket" d="M48 65 Q60 39 72 65" fill="none" stroke-width="6" stroke-linecap="round"/>
+    </svg>
+    <h1>Camp<em>Cart</em></h1>
+  </div>
+</header>
+
+<main class="col">
+
+  <h2 class="say">
+    <span class="line">Elf Kilometer zum Supermarkt.</span>
+    <span class="line near">Eine Minute zum Bestellen.</span>
+  </h2>
+
+  <p class="intro">
+    Abends vom Stellplatz bestellt, morgens an der Rezeption abgeholt &mdash;
+    gepackt vom Hofladen nebenan. Gebaut wird gerade daran:
+  </p>
+
+  <div class="list">
+    <div class="list-head">
+      <span>Kennung &middot; Teil</span>
+      <span>Zustand</span>
+    </div>
+
+    <ul class="rows">
+      <li>
+        <span class="part">
+          <span class="part-id">PWA-GAST-0001</span>
+          <span class="part-name">Bestellen vom Stellplatz</span>
+        </span>
+        <span class="state"><span class="pill pill-unter">Unterwegs</span></span>
+      </li>
+
+      <li>
+        <span class="part">
+          <span class="part-id">DASH-LIEF-0002</span>
+          <span class="part-name">Packliste f&uuml;r den Hofladen</span>
+        </span>
+        <span class="state"><span class="pill pill-ange">Angenommen</span></span>
+      </li>
+
+      <li>
+        <span class="part">
+          <span class="part-id">DASH-BETR-0003</span>
+          <span class="part-name">&Uuml;bersicht f&uuml;r die Rezeption</span>
+        </span>
+        <span class="state"><span class="pill pill-ange">Angenommen</span></span>
+      </li>
+
+      <li>
+        <span class="part">
+          <span class="part-id">PILOT-2027-0004</span>
+          <span class="part-name">Erste Pl&auml;tze zur Saison</span>
+        </span>
+        <span class="state"><span class="pill pill-offen">Offen</span></span>
+      </li>
+
+      <li>
+        <span class="part">
+          <span class="part-id">WEB-VOJETO-0000</span>
+          <span class="part-name">Diese Seite</span>
+        </span>
+        <span class="state">
+          <span class="pill pill-offen">Offen</span>
+          <span class="pill pill-spaet"><span aria-hidden="true">&#9873;</span> Versp&auml;tet</span>
+        </span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="call">
+    <p>Platz, Hofladen oder einfach neugierig?</p>
+    <div class="call-row">
+      <a class="btn" href="mailto:kontakt@vojeto.de">Mail schreiben</a>
+      <span class="call-mail">kontakt@vojeto.de</span>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="col foot-line">
+
+    <div class="sender">
+      <!-- Vojeto, Icon-Stufe, auf eigener heller Flaeche. -->
+      <svg viewBox="0 0 142 78.4" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M 52.40 67.65 C 50.82 67.72 52.18 67.90 48.50 67.55 C 44.82 67.20 34.93 66.22 30.30 65.55 C 25.67 64.88 23.53 64.22 20.70 63.55 C 17.87 62.88 14.92 62.08 13.30 61.55 C 11.68 61.02 11.62 60.79 11.00 60.35 C 10.38 59.91 9.93 59.44 9.55 58.90 C 9.18 58.36 8.95 57.93 8.75 57.10 C 8.55 56.27 8.23 55.13 8.35 53.90 C 8.47 52.67 8.89 50.96 9.45 49.70 C 10.01 48.44 10.58 47.44 11.70 46.35 C 12.83 45.26 13.30 44.75 16.20 43.15 C 19.10 41.55 26.35 38.02 29.10 36.75 C 31.85 35.48 31.28 35.87 32.70 35.55 C 34.12 35.23 35.80 34.93 37.60 34.85 C 39.40 34.77 41.78 34.87 43.50 35.05 C 45.22 35.23 45.33 35.08 47.90 35.95 C 50.47 36.82 55.32 39.05 58.90 40.25 C 62.48 41.45 66.98 42.35 69.40 43.15 C 71.82 43.95 72.51 44.51 73.40 45.05 C 74.29 45.59 74.38 45.93 74.75 46.40 C 75.12 46.88 75.20 46.57 75.65 47.90 C 76.10 49.23 77.18 52.88 77.45 54.40 C 77.72 55.92 77.55 56.03 77.25 57.00 C 76.95 57.97 76.48 59.24 75.65 60.20 C 74.83 61.16 73.53 62.06 72.30 62.75 C 71.07 63.44 70.68 63.62 68.30 64.35 C 65.92 65.08 60.65 66.60 58.00 67.15 C 55.35 67.70 53.98 67.58 52.40 67.65 Z M 70.80 35.75 C 69.28 35.82 68.32 35.82 66.90 35.65 C 65.48 35.48 63.72 35.10 62.30 34.75 C 60.88 34.40 59.88 34.15 58.40 33.55 C 56.92 32.95 54.49 31.79 53.40 31.15 C 52.31 30.51 52.23 30.19 51.85 29.70 C 51.48 29.21 51.27 28.87 51.15 28.20 C 51.03 27.53 50.97 26.57 51.15 25.70 C 51.33 24.83 51.81 23.69 52.25 23.00 C 52.69 22.31 53.26 21.94 53.80 21.55 C 54.34 21.16 53.55 21.32 55.50 20.65 C 57.45 19.98 62.88 18.27 65.50 17.55 C 68.12 16.83 69.07 16.67 71.20 16.35 C 73.33 16.03 76.18 15.67 78.30 15.65 C 80.42 15.63 81.95 15.80 83.90 16.25 C 85.85 16.70 88.58 17.80 90.00 18.35 C 91.42 18.90 91.50 18.98 92.40 19.55 C 93.30 20.12 94.68 21.14 95.40 21.75 C 96.12 22.36 96.33 22.59 96.75 23.20 C 97.17 23.81 97.67 24.72 97.95 25.40 C 98.23 26.08 98.38 26.67 98.45 27.30 C 98.52 27.93 98.51 28.68 98.35 29.20 C 98.19 29.73 97.92 30.04 97.50 30.45 C 97.08 30.86 96.63 31.33 95.80 31.65 C 94.97 31.97 94.05 32.15 92.50 32.35 C 90.95 32.55 89.25 32.37 86.50 32.85 C 83.75 33.33 78.62 34.77 76.00 35.25 C 73.38 35.73 72.32 35.68 70.80 35.75 Z M 108.10 16.95 C 106.33 17.02 103.23 16.92 101.50 16.75 C 99.77 16.58 98.88 16.28 97.70 15.95 C 96.52 15.62 95.25 15.13 94.40 14.75 C 93.55 14.37 93.08 14.03 92.60 13.65 C 92.13 13.28 91.74 12.99 91.55 12.50 C 91.36 12.01 91.40 11.27 91.45 10.70 C 91.50 10.13 91.49 9.76 91.85 9.10 C 92.21 8.44 92.78 7.47 93.60 6.75 C 94.43 6.03 95.20 5.48 96.80 4.75 C 98.40 4.02 101.12 2.97 103.20 2.35 C 105.28 1.73 107.42 1.30 109.30 1.05 C 111.18 0.80 112.38 0.72 114.50 0.85 C 116.62 0.98 120.02 1.47 122.00 1.85 C 123.98 2.23 125.23 2.54 126.40 3.15 C 127.58 3.76 128.38 4.51 129.05 5.50 C 129.73 6.49 130.23 8.25 130.45 9.10 C 130.67 9.95 130.53 10.18 130.35 10.60 C 130.17 11.03 130.31 11.23 129.40 11.65 C 128.49 12.07 126.47 12.75 124.90 13.15 C 123.33 13.55 122.13 13.52 120.00 14.05 C 117.87 14.58 114.08 15.87 112.10 16.35 C 110.12 16.83 109.87 16.88 108.10 16.95 Z"/>
+      </svg>
+      <p>Ein Produkt von Vojeto&nbsp;Studio</p>
+    </div>
+
+    <details class="legal">
+      <summary>Impressum</summary>
+
+      <div class="imprint">
+        <h2>Angaben gem&auml;&szlig; &sect; 5 DDG</h2>
+
+        <p>
+          <strong>Vojeto Studio</strong><br>
+          Inhaber Michael Kraus<br>
+          Olmenastra&szlig;e 7<br>
+          55268 Nieder-Olm
+        </p>
+
+        <!-- Platzhalter: CampCart-Domain und Mailadresse stehen noch aus. -->
+        <p>Kontakt: <a href="mailto:kontakt@vojeto.de">kontakt@vojeto.de</a></p>
+
+        <p>
+          Umsatzsteuer: Als Kleinunternehmer im Sinne von &sect; 19 UStG wird keine
+          Umsatzsteuer berechnet und daher auch keine ausgewiesen.
+        </p>
+
+        <p>
+          Verantwortlich f&uuml;r den Inhalt nach &sect; 18 Abs. 2 MStV:<br>
+          Michael Kraus, Anschrift wie oben
+        </p>
+      </div>
+    </details>
+
+  </div>
+</footer>
+
+</body>
+</html>
